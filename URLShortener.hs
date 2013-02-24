@@ -17,15 +17,15 @@ getTinyURL u = do
       Left connErr -> return $ "Got a connection error..."
       Right result -> return $ rspBody result
 
-getISGDUrl :: String -> IO String
-getISGDUrl u = do
+getISGDURL :: String -> IO String
+getISGDURL u = do
     answer <- simpleHTTP $ getRequest (isgdURL ++ u)
     case answer of
       Left connErr -> return $ "Got a connection error..."
       Right result -> return $ rspBody result
 
-getVGDUrl :: String -> IO String
-getVGDUrl u = do
+getVGDURL :: String -> IO String
+getVGDURL u = do
     answer <- simpleHTTP $ getRequest (vgdURL ++ u)
     case answer of
       Left connErr -> return $ "Got a connection error..."

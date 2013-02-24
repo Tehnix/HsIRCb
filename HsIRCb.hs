@@ -19,7 +19,7 @@ server = "irc.codetalk.io"
 port   = 6667
 chan   = "#lobby"
 user   = "HsIRCb"
-nick   = "hsbot-YesTehnixIsToyingAround"
+nick   = "LambdaBot-junior"
  
 -- The 'Net' monad, a wrapper over IO, carrying the bot's immutable state.
 type Net = ReaderT Bot IO
@@ -75,17 +75,19 @@ listen h = forever $ do
 
 -- Dispatch a command
 eval :: String -> Net ()
-eval "!quit"       = write "QUIT" ":Exiting" >> io (exitWith ExitSuccess)
-eval "!uptime"     = uptime >>= privmsg
-eval "!realdice"   = privmsg (show realDice)
-eval "!dice"       = do 
+eval ".list"         = privmsg "help, quit, uptime, realdice, dice, coin, id, tiny"
+eval ".quit"         = write "QUIT" ":Exiting" >> io (exitWith ExitSuccess)
+eval ".uptime"       = uptime >>= privmsg
+eval ".whoisawesome" = privmsg "Em| is the awesomest"
+eval ".realdice"     = privmsg (show realDice)
+eval ".dice"         = do 
     r <- io $ rollDice
     privmsg (show r)
-eval "!coin"       = do 
+eval ".coin"         = do 
     r <- io $ coinToss
     privmsg (show r)
-eval x | "!id " `isPrefixOf` x   = privmsg $ drop 4 x
-eval x | "!tiny " `isPrefixOf` x = do
+eval x | ".id " `isPrefixOf` x   = privmsg $ drop 4 x
+eval x | ".tiny " `isPrefixOf` x = do
     url <- io $ getTinyURL (drop 6 x)
     privmsg url
 eval _                           = return () -- ignore everything else

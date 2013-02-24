@@ -1,4 +1,7 @@
-module URLShortener (getTinyURL, getISGDUrl, getVGDUrl) where
+module URLShortener (getTinyURL
+    , getISGDURL
+    , getVGDURL
+) where
 
 import Network.HTTP
 

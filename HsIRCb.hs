@@ -12,7 +12,7 @@ import Control.OldException
 import Text.Printf
 import Prelude hiding (catch)
 
-import URLShortener (getTinyURL, getISGDUrl, getVGDUrl)
+import URLShortener (getTinyURL, getISGDURL, getVGDURL)
 import Gamble (realDice, rollDice, coinToss)
  
 server = "irc.codetalk.io"

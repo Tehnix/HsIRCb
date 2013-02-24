@@ -12,7 +12,7 @@ import Control.OldException
 import Text.Printf
 import Prelude hiding (catch)
 
-import TinyURL (getTinyURL)
+import URLShortener (getTinyURL, getISGDUrl, getVGDUrl)
 import Gamble (realDice, rollDice, coinToss)
  
 server = "irc.codetalk.io"
@@ -75,7 +75,7 @@ listen h = forever $ do
 
 -- Dispatch a command
 eval :: String -> Net ()
-eval ".list"         = privmsg "help, quit, uptime, realdice, dice, coin, id, tiny"
+eval ".list"         = privmsg "help, quit, uptime, realdice, dice, coin, id, tiny, short, safeshort"
 eval ".quit"         = write "QUIT" ":Exiting" >> io (exitWith ExitSuccess)
 eval ".uptime"       = uptime >>= privmsg
 eval ".whoisawesome" = privmsg "Em| is the awesomest"
@@ -89,6 +89,12 @@ eval ".coin"         = do
 eval x | ".id " `isPrefixOf` x   = privmsg $ drop 4 x
 eval x | ".tiny " `isPrefixOf` x = do
     url <- io $ getTinyURL (drop 6 x)
+    privmsg url
+eval x | ".short " `isPrefixOf` x = do
+    url <- io $ getISGDURL (drop 7 x)
+    privmsg url
+eval x | ".safeshort " `isPrefixOf` x = do
+    url <- io $ getVGDURL (drop 11 x)
     privmsg url
 eval _                           = return () -- ignore everything else
 

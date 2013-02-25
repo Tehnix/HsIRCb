@@ -76,7 +76,7 @@ listen h = forever $ do
 -- Dispatch a command
 eval :: String -> Net ()
 eval ".list"         = privmsg "help, quit, uptime, realdice, dice, coin, id, tiny, short, safeshort"
-eval ".quit"         = write "QUIT" ":Exiting" >> io (exitWith ExitSuccess)
+-- eval ".quit"         = write "QUIT" ":Exiting" >> io (exitWith ExitSuccess)
 eval ".uptime"       = uptime >>= privmsg
 eval ".whoisawesome" = privmsg "Em| is the awesomest"
 eval ".realdice"     = privmsg (show realDice)

@@ -25,7 +25,7 @@ chan   = "#lobby"
 user ::  String
 user   = "HsIRCb"
 nick ::  String
-nick   = "LambdaBot-junior_"
+nick   = "LambdaBot-junior"
  
 -- The 'Net' monad, a wrapper over IO, carrying the bot's immutable state.
 type Net = ReaderT Bot IO
@@ -68,9 +68,10 @@ register = do
 listen :: Handle -> Net ()
 listen h = forever $ do
     s <- init `fmap` io (hGetLine h)
+    t <- return $ tokenize s
     io (putStrLn s)
     if ping s then pong s 
-    else if isCode s then evalCode (getCode s) 
+    else if isCode t then evalCode (getCode t) 
          else eval (clean s)
   where
     clean     = drop 1 . dropWhile (/= ':') . drop 1
@@ -83,24 +84,14 @@ eval ".list"         = privmsg "help, uptime, realdice, dice, coin, id, tiny, sh
 -- eval ".quit"         = write "QUIT" ":Exiting" >> io (exitWith ExitSuccess)
 eval ".uptime"       = uptime >>= privmsg
 eval ".whoisawesome" = privmsg "Em| is the awesomest"
-eval ".realdice"     = privmsg (show realDice)
-eval ".dice"         = do 
-    r <- io $ rollDice
-    privmsg (show r)
-eval ".coin"         = do 
-    r <- io $ coinToss
-    privmsg (show r)
-eval x | ".id " `isPrefixOf` x   = privmsg $ drop 4 x
-eval x | ".tiny " `isPrefixOf` x = do
-    url <- io $ getTinyURL (drop 6 x)
-    privmsg url
-eval x | ".short " `isPrefixOf` x = do
-    url <- io $ getISGDURL (drop 7 x)
-    privmsg url
-eval x | ".safeshort " `isPrefixOf` x = do
-    url <- io $ getVGDURL (drop 11 x)
-    privmsg url
-eval _                           = return () -- ignore everything else
+eval ".realdice"     = iprivmsg realDice
+eval ".dice"         = io rollDice >>= iprivmsg
+eval ".coin"         = io coinToss >>= iprivmsg
+eval x | ".id " `isPrefixOf` x       = privmsg $ drop 4 x
+eval x | ".tiny" `isPrefixOf` x      = io (getTinyURL (drop 6 x)) >>= privmsg
+eval x | ".short" `isPrefixOf` x     = io (getISGDURL (drop 7 x)) >>= privmsg
+eval x | ".safeshort" `isPrefixOf` x = io (getVGDURL (drop 11 x)) >>= privmsg
+eval _                               = return () -- ignore everything else
 
 -- Look for IRC codes
 evalCode :: String -> Net ()
@@ -110,6 +101,11 @@ evalCode _                       = return () -- ignore everything else
 -- Send a privmsg to the current chan + server
 privmsg :: String -> Net ()
 privmsg s = write "PRIVMSG" (chan ++ " :" ++ s)
+
+-- Send a privmsg to the current chan + server, and auto convert from int
+-- to string
+iprivmsg :: Int -> Net ()
+iprivmsg i = write "PRIVMSG" (chan ++ " :" ++ (show i))
 
 -- Send a message out to the server we're currently connected to
 write :: String -> String -> Net ()
@@ -139,21 +135,3 @@ pretty td =
         diffs = filter ((/= 0) . fst) $ reverse $ snd $
                 foldl' merge (tdSec td,[]) metrics
 
-
-{-| TO BE SUBSTITUTED BY THE HsIRCParser module -}
--- Split a string on a given delimiter
-split :: String -> Char -> [String]
-split str delim = let (start, end) = break (== delim) str
-    in start : if null end then [] else split (tail end) delim
-
--- Tokenize a string
-tokenize ::  String -> [String]
-tokenize s = tail $ split s ':'
-
--- Check if there is an IRC code present
-isCode :: String -> Bool
-isCode s = let w = words (head (tokenize s)) in length w > 1 && all isDigit (w!!1)
-
--- Grab the IRC code from the output
-getCode :: String -> String
-getCode s = let w = words (head (tokenize s)) in w!!1

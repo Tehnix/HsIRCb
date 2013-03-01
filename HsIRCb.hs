@@ -8,9 +8,8 @@ import System.Exit
 import System.Time
 import Control.Arrow
 import Control.Monad.Reader
-import Control.OldException
+import qualified Control.Exception as E
 import Text.Printf
-import Prelude hiding (catch)
 
 import HsIRCParser.HsIRCParser
 import URLShortener (getTinyURL, getISGDURL, getVGDURL)
@@ -31,13 +30,6 @@ nick   = "LambdaBot-junior"
 type Net = ReaderT Bot IO
 data Bot = Bot { socket :: Handle, starttime :: ClockTime }
 
--- Set up actions to run on start and end, and run the main loop
-main :: IO ()
-main = bracket connect disconnect loop
-  where
-    disconnect = hClose . socket
-    loop st    = catch (runReaderT run st) (const $ return ())
-
 -- Connect to the server and return the initial bot state
 connect :: IO Bot
 connect = notify $ do
@@ -46,7 +38,7 @@ connect = notify $ do
     hSetBuffering h NoBuffering
     return (Bot h t)
   where
-    notify = bracket_
+    notify = E.bracket_
         (printf "Connecting to %s ... " server >> hFlush stdout)
         (putStrLn "done.")
 
@@ -71,8 +63,8 @@ listen h = forever $ do
     t <- return $ tokenize s
     io (putStrLn s)
     if ping s then pong s 
-    else if isCode t then evalCode (getCode t) 
-         else eval (clean s)
+        else if isCode t then evalCode (getCode t) 
+            else eval (clean s)
   where
     clean     = drop 1 . dropWhile (/= ':') . drop 1
     ping x    = "PING :" `isPrefixOf` x
@@ -105,7 +97,7 @@ privmsg s = write "PRIVMSG" (chan ++ " :" ++ s)
 -- Send a privmsg to the current chan + server, and auto convert from int
 -- to string
 iprivmsg :: Int -> Net ()
-iprivmsg i = write "PRIVMSG" (chan ++ " :" ++ (show i))
+iprivmsg i = write "PRIVMSG" $ chan ++ " :" ++ (show i)
 
 -- Send a message out to the server we're currently connected to
 write :: String -> String -> Net ()

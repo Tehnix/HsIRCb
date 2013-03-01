@@ -12,14 +12,20 @@ import Control.OldException
 import Text.Printf
 import Prelude hiding (catch)
 
+import HsIRCParser.HsIRCParser
 import URLShortener (getTinyURL, getISGDURL, getVGDURL)
 import Gamble (realDice, rollDice, coinToss)
- 
+
+server ::  String
 server = "irc.codetalk.io"
+port ::  Integer
 port   = 6667
+chan ::  String
 chan   = "#lobby"
+user ::  String
 user   = "HsIRCb"
-nick   = "LambdaBot-junior"
+nick ::  String
+nick   = "LambdaBot-junior_"
  
 -- The 'Net' monad, a wrapper over IO, carrying the bot's immutable state.
 type Net = ReaderT Bot IO
@@ -40,10 +46,9 @@ connect = notify $ do
     hSetBuffering h NoBuffering
     return (Bot h t)
   where
-    notify a = bracket_
+    notify = bracket_
         (printf "Connecting to %s ... " server >> hFlush stdout)
         (putStrLn "done.")
-        a
 
 -- We're in the Net monad now, so we've connected successfully
 -- Join a channel, and start processing commands
@@ -68,14 +73,13 @@ listen h = forever $ do
     else if isCode s then evalCode (getCode s) 
          else eval (clean s)
   where
-    forever a = a >> forever a
     clean     = drop 1 . dropWhile (/= ':') . drop 1
     ping x    = "PING :" `isPrefixOf` x
     pong x    = write "PONG" (':' : drop 6 x)
 
 -- Dispatch a command
 eval :: String -> Net ()
-eval ".list"         = privmsg "help, quit, uptime, realdice, dice, coin, id, tiny, short, safeshort"
+eval ".list"         = privmsg "help, uptime, realdice, dice, coin, id, tiny, short, safeshort"
 -- eval ".quit"         = write "QUIT" ":Exiting" >> io (exitWith ExitSuccess)
 eval ".uptime"       = uptime >>= privmsg
 eval ".whoisawesome" = privmsg "Em| is the awesomest"
@@ -148,7 +152,7 @@ tokenize s = tail $ split s ':'
 
 -- Check if there is an IRC code present
 isCode :: String -> Bool
-isCode s = let w = words (head (tokenize s)) in if length w > 1 then all isDigit (w!!1) else False
+isCode s = let w = words (head (tokenize s)) in length w > 1 && all isDigit (w!!1)
 
 -- Grab the IRC code from the output
 getCode :: String -> String

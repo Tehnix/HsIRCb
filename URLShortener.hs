@@ -6,27 +6,28 @@ module URLShortener (getTinyURL
 import Network.HTTP
 
 
+tinyURL :: String
 tinyURL = "http://tinyurl.com/api-create.php?url="
+
+isgdURL :: String
 isgdURL = "http://is.gd/create.php?format=simple&logstats=1&url="
+
+vgdURL :: String
 vgdURL = "http://v.gd/create.php?format=simple&logstats=1&url="
 
-getTinyURL :: String -> IO String
-getTinyURL u = do
-    answer <- simpleHTTP $ getRequest (tinyURL ++ u)
-    case answer of
-      Left connErr -> return $ "Got a connection error..."
-      Right result -> return $ rspBody result
+getURL :: String -> String -> IO String
+getURL b u = do
+        answer <- simpleHTTP $ getRequest $ b ++ u
+        case answer of
+            Left _ -> return "Got a connection error"
+            Right result -> return $ rspBody result
 
-getISGDURL :: String -> IO String
-getISGDURL u = do
-    answer <- simpleHTTP $ getRequest (isgdURL ++ u)
-    case answer of
-      Left connErr -> return $ "Got a connection error..."
-      Right result -> return $ rspBody result
+getTinyURL ::  String -> IO String
+getTinyURL = getURL tinyURL
 
-getVGDURL :: String -> IO String
-getVGDURL u = do
-    answer <- simpleHTTP $ getRequest (vgdURL ++ u)
-    case answer of
-      Left connErr -> return $ "Got a connection error..."
-      Right result -> return $ rspBody result
+getISGDURL ::  String -> IO String
+getISGDURL = getURL isgdURL
+
+getVGDURL ::  String -> IO String
+getVGDURL = getURL vgdURL
+

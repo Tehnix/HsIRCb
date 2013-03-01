@@ -1,0 +1,17 @@
+name:           HsIRCb
+version:        0.0.1
+license:        BSD3
+license-file:   LICENSE
+author:         Christian Kjaer Laustsen
+maintainer:     Christian Kjaer Laustsen
+synopsis:       A Haskell IRC bot
+description:    A simple and extensible Haskell IRC bot
+stability:      Experimental
+cabal-version:  >= 1.8
+build-type:     Simple
+
+library
+    exposed-modules: HsIRCb
+                     HsIRCParser.HsIRCParser
+                     Gamble
+                     URLShortener

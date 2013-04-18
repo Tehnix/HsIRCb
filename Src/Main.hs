@@ -1,6 +1,6 @@
 module Main where
     
-import HsIRCb
+import Src.HsIRCb
 import Control.Monad.Reader
 import Network
 import System.IO

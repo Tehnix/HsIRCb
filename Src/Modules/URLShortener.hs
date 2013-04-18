@@ -1,4 +1,4 @@
-module URLShortener (getTinyURL
+module Src.Modules.URLShortener (getTinyURL
     , getISGDURL
     , getVGDURL
 ) where

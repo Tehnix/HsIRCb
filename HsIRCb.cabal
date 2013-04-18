@@ -10,23 +10,31 @@ stability:      Experimental
 cabal-version:  >= 1.8
 build-type:     Simple
 
-library
-    exposed-modules: HsIRCb
-                     HsIRCParser.HsIRCParser
-                     Gamble
-                     URLShortener
+Extra-Source-Files:
+        README.md LICENSE
+
+Library
     build-depends:   base >= 3 && < 5
                      , mtl
                      , old-time
                      , network
                      , random
                      , HTTP
+                     , bytestring
+                     , aeson
+    Exposed-Modules: Src.HsIRCb
+                     HsIRCParser.HsIRCParser
+                     Src.Modules.Gamble
+                     Src.Modules.URLShortener
+                     Src.Modules.BTCInfo
+                     
 executable HsIRCb
-    main-is:        Main.hs
+    main-is:        Src/Main.hs
     build-depends:  base
-                    , HsIRCb
                     , mtl
                     , old-time
                     , network
                     , random
                     , HTTP
+                    , bytestring
+                    , aeson

@@ -1,4 +1,4 @@
-module Gamble (realDice
+module Src.Modules.Gamble (realDice
     , rollDice
     , coinToss
     , getRandom

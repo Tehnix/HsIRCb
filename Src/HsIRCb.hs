@@ -1,4 +1,4 @@
-module HsIRCb where
+module Src.HsIRCb where
 
 import Data.List
 import Data.Char (isDigit)
@@ -12,8 +12,9 @@ import qualified Control.Exception as E
 import Text.Printf
 
 import HsIRCParser.HsIRCParser
-import URLShortener (getTinyURL, getISGDURL, getVGDURL)
-import Gamble (realDice, rollDice, coinToss)
+import Src.Modules.URLShortener (getTinyURL, getISGDURL, getVGDURL)
+import Src.Modules.Gamble (realDice, rollDice, coinToss)
+import Src.Modules.BTCInfo (getBTCInfo, getBTCProfit)
 
 server ::  String
 server = "irc.codetalk.io"
@@ -24,7 +25,7 @@ chan   = "#lobby"
 user ::  String
 user   = "HsIRCb"
 nick ::  String
-nick   = "LambdaBot-junior"
+nick   = "LambdaBot-junior2"
  
 -- The 'Net' monad, a wrapper over IO, carrying the bot's immutable state.
 type Net = ReaderT Bot IO
@@ -79,6 +80,7 @@ eval ".whoisawesome" = privmsg "Em| is the awesomest"
 eval ".realdice"     = iprivmsg realDice
 eval ".dice"         = io rollDice >>= iprivmsg
 eval ".coin"         = io coinToss >>= iprivmsg
+eval ".profit"       = io getBTCProfit >>= privmsg
 eval x | ".id " `isPrefixOf` x       = privmsg $ drop 4 x
 eval x | ".tiny" `isPrefixOf` x      = io (getTinyURL (drop 6 x)) >>= privmsg
 eval x | ".short" `isPrefixOf` x     = io (getISGDURL (drop 7 x)) >>= privmsg
@@ -98,6 +100,11 @@ privmsg s = write "PRIVMSG" (chan ++ " :" ++ s)
 -- to string
 iprivmsg :: Int -> Net ()
 iprivmsg i = write "PRIVMSG" $ chan ++ " :" ++ (show i)
+
+-- Send a privmsg to the current chan + server, and auto convert from double
+-- to string
+dprivmsg :: Double -> Net ()
+dprivmsg d = write "PRIVMSG" $ chan ++ " :" ++ (show d)
 
 -- Send a message out to the server we're currently connected to
 write :: String -> String -> Net ()

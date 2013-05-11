@@ -1,6 +1,7 @@
 {-# LANGUAGE OverloadedStrings #-}
 module Src.Modules.BTCInfo (getBTCInfo
                             , getBTCProfit
+                            , getBTCPrice
 ) where
     
 import Network.HTTP
@@ -35,9 +36,9 @@ getJSON u = do
 decodeBTCInfo :: BS.ByteString -> Either String (Maybe BTCInfo)
 decodeBTCInfo = eitherDecode
 
-getBTCInfo :: IO String
-getBTCInfo = do
-    rawJSON <- getJSON "http://data.mtgox.com/api/1/BTCEUR/ticker"
+getBTCInfo :: String -> IO String
+getBTCInfo currency = do
+    rawJSON <- getJSON $ "http://data.mtgox.com/api/1/BTC" ++ currency ++ "/ticker"
     json <- return $ BS.pack rawJSON
     btc <- return $ decodeBTCInfo json
     case btc of
@@ -48,7 +49,17 @@ getBTCInfo = do
 
 getBTCProfit :: IO String
 getBTCProfit = do
-    curPrice <- getBTCInfo
+    curPrice <- getBTCInfo "EUR"
     let priceInFloat = read curPrice
     let profit = floor $ (priceInFloat - 56) * 5.30397956 * 7.45
-    return $ (show profit) ++ " DKK"
+    return $ show profit ++ " DKK"
+
+getBTCPrice :: IO String
+getBTCPrice = do
+    curPriceInEuro <- getBTCInfo "EUR"
+    curPriceInUSD <- getBTCInfo "USD"
+    curPriceInDKK <- getBTCInfo "DKK"
+    let priceInEuro = show $ floor $ read curPriceInEuro
+    let priceInUSD = show $ floor $ read curPriceInUSD
+    let priceInDKK = show $ floor $ read curPriceInDKK
+    return $ "1btc: " ++ priceInEuro ++ "euro, $" ++ priceInUSD ++ ", " ++ priceInDKK ++ "DKK"

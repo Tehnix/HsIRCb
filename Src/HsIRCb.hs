@@ -14,7 +14,7 @@ import Text.Printf
 import HsIRCParser.HsIRCParser
 import Src.Modules.URLShortener (getTinyURL, getISGDURL, getVGDURL)
 import Src.Modules.Gamble (realDice, rollDice, coinToss)
-import Src.Modules.BTCInfo (getBTCInfo, getBTCProfit)
+import Src.Modules.BTCInfo (getBTCPrice, getBTCProfit)
 
 server ::  String
 server = "irc.codetalk.io"
@@ -25,7 +25,7 @@ chan   = "#lobby"
 user ::  String
 user   = "HsIRCb"
 nick ::  String
-nick   = "LambdaBot-junior"
+nick   = "LambdaBot-junior-dev"
  
 -- The 'Net' monad, a wrapper over IO, carrying the bot's immutable state.
 type Net = ReaderT Bot IO
@@ -73,7 +73,7 @@ listen h = forever $ do
 
 -- Dispatch a command
 eval :: String -> Net ()
-eval ".list"         = privmsg "help, uptime, realdice, dice, coin, id, tiny, short, safeshort"
+eval ".list"         = privmsg "help, uptime, realdice, dice, coin, id, tiny, short, safeshort, profit, btc"
 -- eval ".quit"         = write "QUIT" ":Exiting" >> io (exitWith ExitSuccess)
 eval ".uptime"       = uptime >>= privmsg
 eval ".whoisawesome" = privmsg "Em| is the awesomest"
@@ -81,6 +81,7 @@ eval ".realdice"     = iprivmsg realDice
 eval ".dice"         = io rollDice >>= iprivmsg
 eval ".coin"         = io coinToss >>= iprivmsg
 eval ".profit"       = io getBTCProfit >>= privmsg
+eval ".btc"          = io getBTCPrice >>= privmsg
 eval x | ".id " `isPrefixOf` x       = privmsg $ drop 4 x
 eval x | ".tiny" `isPrefixOf` x      = io (getTinyURL (drop 6 x)) >>= privmsg
 eval x | ".short" `isPrefixOf` x     = io (getISGDURL (drop 7 x)) >>= privmsg

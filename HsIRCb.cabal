@@ -11,7 +11,7 @@ cabal-version:  >= 1.8
 build-type:     Simple
 
 Extra-Source-Files:
-        README.md LICENSE
+    README.md LICENSE
 
 Library
     build-depends:   base >= 3 && < 5
@@ -28,7 +28,7 @@ Library
                      Src.Modules.URLShortener
                      Src.Modules.BTCInfo
                      
-executable HsIRCb
+Executable HsIRCb
     main-is:        Src/Main.hs
     build-depends:  base
                     , mtl

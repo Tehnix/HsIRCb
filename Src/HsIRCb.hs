@@ -25,7 +25,7 @@ chan   = "#lobby"
 user ::  String
 user   = "HsIRCb"
 nick ::  String
-nick   = "LambdaBot-junior-dev"
+nick   = "LambdaBot-junior"
  
 -- The 'Net' monad, a wrapper over IO, carrying the bot's immutable state.
 type Net = ReaderT Bot IO
